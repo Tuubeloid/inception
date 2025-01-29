@@ -7,7 +7,7 @@ To configure the domain name:
 To run mysql container:
 4. sudo docker run --env-file /media/sf_shared/srcs/.env -v my-volume:/var/lib/mysql mysql
 
-For mariadb:
+5. For mariadb:
 export db_name=mydatabase
 export db_user=myuser
 export db_pwd=mysecurepassword
