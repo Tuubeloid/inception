@@ -7,13 +7,13 @@ To configure the domain name:
 To run mysql container:
 4. sudo docker run --env-file /media/sf_shared/srcs/.env -v my-volume:/var/lib/mysql mysql
 
-5. For mariadb:
-export db_name=mydatabase
-export db_user=myuser
-export db_pwd=mysecurepassword
+For mariadb:
+5. export db_name=mydatabase
+6. export db_user=myuser
+7. export db_pwd=mysecurepassword
 
-echo "CREATE DATABASE IF NOT EXISTS $db_name ;" > db1.sql
-echo "CREATE USER IF NOT EXISTS '$db_user'@'%' IDENTIFIED BY '$db_pwd' ;" >> db1.sql
-echo "GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'%' ;" >> db1.sql
-echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '12345' ;" >> db1.sql
-echo "FLUSH PRIVILEGES;" >> db1.sql
+8. echo "CREATE DATABASE IF NOT EXISTS $db_name ;" > db1.sql
+9. echo "CREATE USER IF NOT EXISTS '$db_user'@'%' IDENTIFIED BY '$db_pwd' ;" >> db1.sql
+10. echo "GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'%' ;" >> db1.sql
+11. echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '12345' ;" >> db1.sql
+12. echo "FLUSH PRIVILEGES;" >> db1.sql
