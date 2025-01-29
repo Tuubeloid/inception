@@ -1,3 +1,23 @@
+volumes:
+  wordpress:
+    name: wordpress
+    driver: local
+    driver_opts:
+      devices: /media/sf_shared/srcs/wordpress
+      o: bind
+      type: none
+  mariadb:
+    name: mariadb
+    driver: local
+    driver_opts:
+      device: /media/sf_shared/srcs/mariadb
+      o: bind
+      type: none
+
+networks:
+  inception:
+    name: inception
+
 services:
     mariadb:
       container_name: mariadb
@@ -10,10 +30,18 @@ services:
       networks:
         - inception
       restart: always
+    wordpress:
+      container_name: wordpress
+      build: ./requirements/wordpress/
+      image: wordpress:42
+      depends_on:
+        - mariadb
+      volumes:
+        - wordpress:/var/www/html
+      env_file:
+        - .env
+      networks:
+        - inception
+      restart: always
 
-networks:
-  inception:
-    driver: bridge
 
-volumes:
-  mariadb:
