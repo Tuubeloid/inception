@@ -19,6 +19,21 @@ networks:
     name: inception
 
 services:
+    nginx:
+      container_name: nginx
+      build: ./requirements/nginx/
+      image: nginx:42
+      ports:
+        - "443:443"
+      depends_on:
+        - wordpress
+      volumes:
+        - wordpress:/var/www/html
+      networks:
+        - inception
+      env_file:
+        - .env
+      restart: always
     mariadb:
       container_name: mariadb
       build: ./requirements/mariadb/
