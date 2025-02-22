@@ -1,4 +1,7 @@
-FROM debian:buster
-RUN apt-get update && apt-get install -y mariadb-server
-COPY db1.sql /docker-entrypoint-initdb.d/
-CMD ["/usr/bin/mysqld_safe"]
+FROM alpine:3.20.5
+
+RUN apk update && apk add mariadb mariadb-client bash
+COPY tools/mariadb-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mariadb-entrypoint.sh
+
+ENTRYPOINT [ "mariadb-entrypoint.sh" ]

@@ -1,10 +1,8 @@
-FROM debian:buster
+FROM alpine:3.20.5
 
-RUN apt -y update && apt install -y nginx && apt install openssl -y
+RUN apk update && apk add nginx openssl bash
+COPY tools/nginx-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/nginx-entrypoint.sh && \
+	mkdir -p /etc/nginx/ssl
 
-# COPY ./conf/default /etc/nginx/sites-available
-
-COPY ./tools/script.sh /
-
-CMD [ "/script.sh" ]
-
+ENTRYPOINT [ "nginx-entrypoint.sh"]
