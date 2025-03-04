@@ -1,45 +1,31 @@
-#!/bin/bash
-set -e
+#!/bin/sh
 
-if [ ! -e /etc/.firstrun ]; then
-	openssl req -x509 -days 365 -newkey rsa:2048 -nodes \
-	-out '/etc/nginx/ssl/cert.crt' \
-	-keyout '/etc/nginx/ssl/cert.key' \
-	-subj "/CN=$DOMAIN_NAME" \
-	>/dev/null 2>dev/null
-
-	cat << EOF >> /etc/nginx/http.d/default.conf
-server {
-	listen 443 ssl http2;
-	listen [::]:443 ssl http2;
-	server_name $DOMAIN_NAME;
-	
-	ssl_certificate /etc/nginx/ssl/cert.crt;
-	ssl_certificate_key /etc/nginx/ssl/cert.key;
-	ssl_protocols TLSv1.2 TLSv1.3;
-	ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-	
-	root /var/www/html;
-	index index.php index.html index.htm;
-
-	location / {
-		try_files \$uri \$uri/ /index.php?\$args;
-	}
-
-	location ~ [^/]\.php(/|\$) {
-		try_files \$fastcgi_script_name =404;
-
-		fastcgi_pass wordpress:9000;
-		fastcgi_index index.php;
-		fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-		fastcgi_param PATH_INFO \$fastcgi_path_info;
-		fastcgi_split_path_info ^(.+\.php)(/.*)\$;
-		include fastcgi_params;
-	}
+log() {
+  printf "[TRACE] %s\n" "$1"
 }
-EOF
-	touch /etc/.firstrun
+
+if [ -z "$DOMAIN_NAME" ] || [ -z "$SSL_CERT_PATH" ] || [ -z "$SSL_KEY_PATH" ]; then
+  log "[ERROR] Missing environment variables!"
+  exit 1
 fi
 
-exec nginx -g 'daemon off;'
+log "🔑 Checking if SSL certificates already exist..."
+if [ ! -f "$SSL_CERT_PATH" ] || [ ! -f "$SSL_KEY_PATH" ]; then
+  log "Generating self-signed SSL certificate and private key..."
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -out "$SSL_CERT_PATH" -keyout "$SSL_KEY_PATH" \
+  -subj "/C=FI/L=Helsinki/O=Hive/OU=Student/CN=$DOMAIN_NAME" > /dev/null 2>&1
+  
+  log "✅ SSL Certificates Generated"
+else
+  log "✅ SSL certificates already exist — skipping generation."
+fi
+
+log "🔄 Replacing placeholders in nginx.conf with environment variables..."
+sed -i "s|ssl_cert_path|$SSL_CERT_PATH|g" /etc/nginx/nginx.conf
+sed -i "s|ssl_key_path|$SSL_KEY_PATH|g" /etc/nginx/nginx.conf
+sed -i "s|domain_name|$DOMAIN_NAME|g" /etc/nginx/nginx.conf
+
+log "🚀 Starting Nginx service..."
+nginx -g "daemon off;"
 
