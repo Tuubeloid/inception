@@ -1,37 +1,35 @@
-#!/bin/bash
-set -e
+#!/bin/sh
 
-if [[ -z "$MYSQL_DATABASE" || -z "$MYSQL_USER" || -z "$MYSQL_PASSWORD" || -z "MYSQL_ROOT_PASSWORD" ]]; then
-	echo "Error in maria.db entrypoint.sh: One or more required env variables are missing."
-	exit 1
+log() {
+  printf "[TRACE] %s\n" "$1"
+}
+
+# Environment Variable Check
+if [ -z "$DATABASE_NAME" ] || [ -z "$DATABASE_USER" ] || [ -z "$DATABASE_PASS" ]; then
+  log "[ERROR] Missing environment variables!"
+  exit 1
 fi
 
-if [ ! -e /etc/.firstrun ]; then
-	cat << EOF >> /etc/my.cnf.d/mariadb-server.cnf
-[mysqld]
-bind-address=0.0.0.0
-skip-networking=0
-EOF
-	touch /etc/.firstrun
-fi
+# Initialize Database Only If It Doesn't Exist
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+  log "🔑 Initializing MariaDB Data Directory..."
+  mariadb-install-db --user=mysql --datadir=/var/lib/mysql > /dev/null 2>&1
+  
+  log "✅ Database Directory Initialized"
 
-if [ ! -e /var/lib/mysql/.firstmount ]; then
-	mysql_install_db --datadir=/var/lib/mysql --skip-test-db --user=mysql --group=mysql \
-		--auth-root-authentication-method=socket >/dev/null 2>/dev/null
-	mysql_safe &
-	mysql_pid=$!
-
-	mysqladmin ping -u root --silent --wait >/dev/null 2>/dev/null
-	cat << EOF | mysql --protocol=socket -u root -p=
-CREATE DATABASE $MYSQL_DATABASE;
-CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
-GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';
-GRANT ALL PRIVILEGES on *.* to 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
+  log "🔥 Starting MariaDB temporarily to apply setup..."
+  mysqld --user=mysql --bootstrap <<EOF
+DROP DATABASE IF EXISTS $DATABASE_NAME;
+CREATE DATABASE $DATABASE_NAME;
+ALTER USER 'root'@'localhost' IDENTIFIED BY '$DATABASE_PASS';
+CREATE USER IF NOT EXISTS '$DATABASE_USER'@'%' IDENTIFIED BY '$DATABASE_PASS';
+GRANT ALL PRIVILEGES ON $DATABASE_NAME.* TO '$DATABASE_USER'@'%';
 FLUSH PRIVILEGES;
 EOF
-
-	mysqladmin shutdown
-	touch /var/lib/mysql/.firstmount
+  log "✅ Database Setup Completed"
+else
+  log "✅ Database Already Initialized — Skipping Setup"
 fi
 
-exec mysqld_safe
+log "🚀 Starting MariaDB service..."
+exec mysqld --user=mysql --console
