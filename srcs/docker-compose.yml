@@ -62,7 +62,7 @@ services:
     networks:
       - docker-network
     depends_on:
-      - mariadb
+      - srcs_mariadb
     expose:
       - "9000"
 volumes:
