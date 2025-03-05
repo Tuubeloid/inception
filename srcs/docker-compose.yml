@@ -66,11 +66,10 @@ services:
     expose:
       - "9000"
     healthcheck:
-      disable: true
-      #test: ["CMD", "curl", "-f", "http://localhost:9000/ || exit 1"]
-      #interval: 5s
-      #timeout: 3s
-      #retries: 10
+      test: ["CMD", "mysql", "-h", "mariadb", "-u", "$MYSQL_USER", "-p$MYSQL_PASSWORD", "$MYSQL_DATABASE", "-e", "SELECT 1"]
+      interval: 10s
+      retries: 10
+      timeout: 5s
 volumes:
   mariadb:
     driver: local
