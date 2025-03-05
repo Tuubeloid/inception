@@ -65,6 +65,11 @@ services:
       - srcs_mariadb
     expose:
       - "9000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/ || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 volumes:
   mariadb:
     driver: local
