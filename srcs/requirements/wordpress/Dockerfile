@@ -7,7 +7,7 @@ RUN apk update && apk add bash curl mariadb-client icu-data-full ghostscript \
 	php82-xml php82-zip php82-iconv php82-shmop php82-simplexml php82-sodium \
 	php82-xmlreader php82-zlib php82-tokenizer
  
-RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.pharar
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 RUN chmod +x wp-cli.phar
 RUN mv wp-cli.phar /usr/bin/wp
 
