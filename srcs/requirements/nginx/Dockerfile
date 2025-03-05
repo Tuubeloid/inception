@@ -13,4 +13,10 @@ RUN ls -la /usr/local/bin/
 
 EXPOSE 443
 
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Healthcheck to see if nginx is serving https
+HEALTHCHECK --interval=5s --timeout=3s --retries=10 CMD curl -kf https://localhost || exit 1
+
 ENTRYPOINT ["sh", "/usr/local/bin/nginx-entrypoint.sh"]
