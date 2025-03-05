@@ -15,7 +15,6 @@ services:
       - mariadb:/var/lib/mysql
     networks:
       - docker-network
-    image: mariadb:11.8.2
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
