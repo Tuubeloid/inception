@@ -26,12 +26,6 @@ if [ ! -e .firstmount ]; then
             --dbpass="$MYSQL_PASSWORD" \
             --dbname="$MYSQL_DATABASE"
 
-        # Configure WordPress to use Redis and set cache settings
-        wp config set WP_REDIS_HOST redis
-        wp config set WP_REDIS_PORT 6379 --raw
-        wp config set WP_CACHE true --raw
-        wp config set FS_METHOD direct
-
         # Install WordPress with provided settings
         wp core install --allow-root \
             --skip-email \
