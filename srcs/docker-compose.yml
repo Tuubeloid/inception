@@ -1,5 +1,5 @@
 services:
-  mariadb:
+  srcs_mariadb:
     container_name: mariadb
     init: true
     restart: always
@@ -35,7 +35,7 @@ services:
         condition: service_healthy
       mariadb:
         condition: service_healthy
-  wordpress:
+  srcs_wordpress:
     container_name: wordpress
     init: true
     restart: always
