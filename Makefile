@@ -43,7 +43,3 @@ make_dir_up:
 make_dir_up_build:
 	@printf "Launching configuration ${name} with --build...\n"
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up --build -d
-
-make_dir_up_build:
-	@printf "Launching configuration ${name} with --build...\n"
-	@docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up --build -d
