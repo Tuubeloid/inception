@@ -62,7 +62,8 @@ services:
     networks:
       - docker-network
     depends_on:
-      - srcs_mariadb
+      mariadb:
+        condition: service_healthy
     expose:
       - "9000"
     healthcheck:
