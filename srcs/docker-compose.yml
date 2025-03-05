@@ -36,9 +36,9 @@ services:
     networks:
       - docker-network
     depends_on:
-      wordpress:
+      srcs_wordpress:
         condition: service_healthy
-      mariadb:
+      srcs_mariadb:
         condition: service_healthy
   srcs_wordpress:
     container_name: wordpress
