@@ -5,7 +5,7 @@ log() {
 }
 
 # Environment Variable Check
-if [ -z "$DATABASE_NAME" ] || [ -z "$DATABASE_USER" ] || [ -z "$DATABASE_PASS" ]; then
+if [ -z "$MYSQL_DATABASE" ] || [ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ]; then
   log "[ERROR] Missing environment variables!"
   exit 1
 fi
