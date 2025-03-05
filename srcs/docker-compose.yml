@@ -9,7 +9,7 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     env_file:
-      - ./srcs/.env
+      - .env
     build: requirements/mariadb
     volumes:
       - mariadb:/var/lib/mysql
@@ -27,7 +27,7 @@ services:
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
     env_file:
-      - ./srcs/.env
+      - .env
     build: requirements/nginx
     ports:
       - "443:443" #https
