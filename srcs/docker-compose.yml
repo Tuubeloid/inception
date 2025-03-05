@@ -15,6 +15,11 @@ services:
       - mariadb:/var/lib/mysql
     networks:
       - docker-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
   nginx:
     container_name: nginx
     init: true
