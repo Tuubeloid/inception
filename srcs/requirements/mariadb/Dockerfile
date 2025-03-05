@@ -17,6 +17,6 @@ EXPOSE 3306
 RUN apk add --no-cache curl
 
 # Healthcheck to see if MariaDB is alive
-HEALTHCHECK --interval=5s --timeout=3s --retries=10 CMD mysqladmin ping -h localhost -u${MYSQL_USER} -p${MYSQL_PASSWORD} || exit 1
+HEALTHCHECK CMD mysqladmin ping -h localhost -u${MYSQL_USER} -p${MYSQL_PASSWORD} || exit 1
 
 ENTRYPOINT [ "sh", "/usr/local/bin/mariadb-entrypoint.sh" ]
