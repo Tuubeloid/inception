@@ -9,8 +9,8 @@ COPY ./conf/my.cnf /etc/mysql/
 RUN chmod 644 /etc/mysql/my.cnf
 
 COPY tools/mariadb-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/mariadb-entrypoint.sh
 
 EXPOSE 3306
 
-ENTRYPOINT [ "sh", "mariadb-entrypoint.sh" ]
+ENTRYPOINT [ "sh", "/usr/local/bin/mariadb-entrypoint.sh" ]
