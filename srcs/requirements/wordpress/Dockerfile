@@ -23,4 +23,10 @@ WORKDIR /var/www/html
 
 EXPOSE 9000
 
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Healthcheck to see if PHP-FPM is alive
+HEALTHCHECK --interval=5s --timeout=3s --retries=10 CMD curl -f http://localhost:9000 || exit 1
+
 ENTRYPOINT [ "sh", "/usr/local/bin/entrypoint.sh" ]
