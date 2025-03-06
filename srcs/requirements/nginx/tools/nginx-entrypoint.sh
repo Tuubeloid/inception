@@ -12,11 +12,14 @@ if [ -z "$DOMAIN_NAME" ] || [ -z "$SSL_CERT_PATH" ] || [ -z "$SSL_KEY_PATH" ]; t
 fi
 
 log "🔑 Checking if SSL certificates exist..."
-if [ -f "$SSL_CERT_PATH" ] && [ -f "$SSL_KEY_PATH" ]; then
-  log "✅ SSL certificates found — skipping generation."
+if [ ! -f "$SSL_CERT_PATH" ] || [ ! -f "$SSL_KEY_PATH" ]; then
+  log "🚨 SSL certificates missing — generating new ones..."
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout "$SSL_KEY_PATH" -out "$SSL_CERT_PATH" \
+  -subj "/C=FI/L=Helsinki/O=Hive/OU=Student/CN=$DOMAIN_NAME"
+  log "✅ SSL Certificates Generated"
 else
-  log "[ERROR] SSL certificates are missing!"
-  exit 1
+  log "✅ SSL certificates found — skipping generation."
 fi
 
 # Fix permissions in case they were modified
