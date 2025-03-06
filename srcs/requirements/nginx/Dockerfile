@@ -6,6 +6,10 @@ RUN apk update && apk add --no-cache nginx openssl curl
 # Generate SSL certificates for NGINX
 RUN openssl req -x509 -newkey rsa:4096 -keyout /etc/ssl/private/selfsigned.key -out /etc/ssl/certs/selfsigned.crt -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Company/OU=Department/CN=localhost"
 
+# Set correct permissions for SSL keys
+RUN chmod 600 /etc/ssl/private/selfsigned.key && \
+    chmod 644 /etc/ssl/certs/selfsigned.crt
+
 # Copy NGINX configuration file
 COPY conf/nginx.conf /etc/nginx/
 RUN chmod 644 /etc/nginx/nginx.conf
