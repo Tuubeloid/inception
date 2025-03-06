@@ -51,4 +51,5 @@ fi
 
 # Start PHP-FPM
 echo "Starting PHP-FPM..."
-exec /usr/sbin/php-fpm82 -F
+php-fpm82 -F &
+tail -f /dev/null
