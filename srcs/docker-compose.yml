@@ -37,7 +37,6 @@ services:
       - docker-network
     depends_on:
       - wordpress
-    image: nginx:1.27.4
 
   wordpress:
     container_name: wordpress
@@ -63,7 +62,6 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-    image: wordpress:6.7.2
     healthcheck:
       test: ["CMD", "test", "-f", "/var/www/html/wp-login.php"]
       interval: 30s
