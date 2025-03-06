@@ -51,5 +51,5 @@ fi
 
 # Start PHP-FPM
 echo "Starting PHP-FPM..."
-echo "Starting PHP-FPM..."
-exec /usr/sbin/php-fpm82 -F
+php-fpm82 -F &
+while true; do sleep 1000; done
