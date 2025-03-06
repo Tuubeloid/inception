@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "[DEBUG] nginx-entrypoint.sh is running"
+
 log() {
   printf "[TRACE] %s\n" "$1"
 }
