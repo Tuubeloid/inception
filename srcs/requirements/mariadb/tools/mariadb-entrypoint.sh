@@ -10,7 +10,7 @@ if [ -z "$MYSQL_DATABASE" ] || [ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ] 
   exit 1
 fi
 
-# configure server to be reachable by other containers on the first run
+# Check if the database directory exists; if not, initialize
 if [ ! -d "/var/lib/mysql/mysql" ]; then
 	echo "Installing MySQL..."
 	mysql_install_db --user=mysql --datadir=/var/lib/mysql
@@ -24,22 +24,16 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 	done
 
 	echo "Setting up database and users..."
-	mysql --socket=/var/run/mysqld/mysqld.sock -uroot <<-EOF
-	    FLUSH PRIVILEGES;
-	    ALTER USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-	    CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
-	    CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-	    CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'localhost' IDENTIFIED BY '${MYSQL_PASSWORD}';
-	    GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
-	    GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'localhost';
-	    FLUSH PRIVILEGES;
-	EOF
 
+	# Use `envsubst` to replace placeholders in `init.sql`
+	envsubst < /docker-entrypoint-initdb.d/init.sql > /tmp/init.sql
+
+	# Execute the modified SQL script
+	mysql --socket=/var/run/mysqld/mysqld.sock -uroot < /tmp/init.sql
 
 	echo "Shutting down temporary MariaDB..."
 	mysqladmin shutdown --socket=/var/run/mysqld/mysqld.sock -uroot -p"${MYSQL_ROOT_PASSWORD}"
 fi
-
 
 log "🚀 Starting MariaDB service..."
 exec mysqld --user=mysql
