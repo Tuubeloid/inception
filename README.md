@@ -115,6 +115,64 @@ chmod -R 664 ~/Inception/srcs/requirements/*/Dockerfile
 
 ---
 
+## 📄 Makefile Documentation
+This `Makefile` automates the setup, management, and cleanup of the Inception project. Below is a breakdown of its functionality:
+
+```makefile
+COMPOSE_FILE   := srcs/docker-compose.yml
+DOCKER_COMPOSE := docker compose -f $(COMPOSE_FILE)
+
+DATADIR := $(HOME)/data
+MARIADB := $(DATADIR)/mariadb
+WORDPRESS := $(DATADIR)/wordpress
+
+all: up
+
+up: $(MARIADB) $(WORDPRESS)
+	@$(DOCKER_COMPOSE) up --build -d
+
+down:
+	@$(DOCKER_COMPOSE) down
+
+re: down up
+
+clean: down
+	sudo rm -rf $(DATADIR)
+
+fclean: clean
+	@$(DOCKER_COMPOSE) down -v --rmi all
+
+ps:
+	@$(DOCKER_COMPOSE) ps
+
+logs:
+	@$(DOCKER_COMPOSE) logs
+
+volumes:
+	docker volume ls
+	docker volume inspect srcs_mariadb
+	docker volume inspect srcs_wordpress
+
+$(MARIADB) $(WORDPRESS):
+	mkdir -p $@
+
+.PHONY: all up down re clean fclean ps logs volumes
+```
+
+### 🔍 Explanation of Makefile Targets
+- **`all`**: Default target, runs `up` to build and start all services.
+- **`up`**: Ensures the required directories exist and starts the containers with `docker-compose up --build -d`.
+- **`down`**: Stops all running containers.
+- **`re`**: Restarts all services by running `down` followed by `up`.
+- **`clean`**: Stops all containers and removes the entire data directory.
+- **`fclean`**: Performs `clean`, removes all container volumes, and deletes all Docker images used in the project.
+- **`ps`**: Lists all running containers.
+- **`logs`**: Displays logs from all running containers.
+- **`volumes`**: Lists all Docker volumes and inspects the `srcs_mariadb` and `srcs_wordpress` volumes.
+- **`$(MARIADB) $(WORDPRESS)`**: Ensures that the required directories exist before starting services.
+
+---
+
 ## 🔥 Running the Project
 ```sh
 cd ~/Inception/srcs
@@ -125,11 +183,3 @@ make
 ---
 
 📢 **More Features Coming Soon!**
-
-
-
-
-
-
-
-
