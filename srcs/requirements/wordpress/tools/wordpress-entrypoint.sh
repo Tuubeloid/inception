@@ -98,6 +98,4 @@ chmod -R 755 /var/www/html
 
 echo "✅ Finished configuration!"
 
-# Start PHP-FPM
-echo "🚀 Starting PHP-FPM..."
-exec php-fpm83 -F
+exec "$@"
