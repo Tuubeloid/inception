@@ -16,6 +16,9 @@ This project is designed to enhance system administration skills using Docker. M
 - **Docker Network** to securely link services.
 
 ## ⚠️ Constraints
+
+![image](https://github.com/user-attachments/assets/9f46df6c-969c-45f8-a8d9-3c3f7aef9400)
+
 - Containers must auto-restart on failure.
 - `network: host`, `--link`, and `links:` cannot be used.
 - Avoid infinite loops (`tail -f`, `bash`, `sleep infinity`).
