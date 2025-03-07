@@ -26,7 +26,7 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 	echo "Setting up database and users..."
 
 	# Use `envsubst` to replace placeholders in `init.sql`
-	envsubst < /docker-entrypoint-initdb.d/init.sql > /tmp/init.sql
+	envsubst < /etc/mysql/init.sql > /tmp/init.sql
 
 	# Execute the modified SQL script
 	mysql --socket=/var/run/mysqld/mysqld.sock -uroot < /tmp/init.sql
