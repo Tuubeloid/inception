@@ -18,6 +18,7 @@ while ! mysqladmin ping -h mariadb -u"root" -p"$MYSQL_ROOT_PASSWORD" --silent; d
 
     sleep 3
 done
+
 echo "✅ MariaDB is ready! Waiting for DB stabilization..."
 sleep 3  # Ensure DB is fully initialized
 
