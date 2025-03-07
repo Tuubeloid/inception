@@ -60,7 +60,7 @@ WORDPRESS_EMAIL=user666@gmail.com
 ### 🔹 Installing VirtualBox
 
 - [Download VirtualBox](https://www.virtualbox.org/)
-- [Download Alpine Linux](https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/) (alpine-virt-3.20.4-x86\_64.iso)
+- [Download Alpine Linux](https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/) (alpine-virt-3.20.5-x86\_64.iso)
 
 ### 🔹 Virtual Machine Configuration
 
