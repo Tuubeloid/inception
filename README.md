@@ -248,6 +248,9 @@ networks:
 ---
 
 ## 🔑 Environment Variables (.env File)
+For separation of concerns and security constraints of the project, we will save credentials into the .env file.
+Dockerfiles or entrypoint scripts can utilize it to overwrite variables with what we have saved in this file.
+
 ```ini
 DOMAIN_NAME=tvalimak.42.fr
 
