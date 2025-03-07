@@ -2,7 +2,7 @@ HOME := /home/tvalimak  # Explicitly define your home directory
 
 DOCKER_COMPOSE_FILE := ./srcs/docker-compose.yml
 ENV_FILE := srcs/.env
-DATA_DIR := $(HOME)/data
+DATA_DIR := /home/tvalimak/data
 WORDPRESS_DATA_DIR := $(DATA_DIR)/wordpress
 MARIADB_DATA_DIR := $(DATA_DIR)/mariadb
 
