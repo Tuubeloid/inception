@@ -162,9 +162,6 @@ make
 
 ---
 
-📢 **More Features Coming Soon!**
-
-🔗 **Stay Connected!** 💬 Have questions? [Open an Issue](https://github.com/tvalimak/inception/issues) or connect via [GitHub Discussions](https://github.com/tvalimak/inception/discussions)!
 
 
 
