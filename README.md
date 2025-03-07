@@ -27,6 +27,63 @@ This project is designed to enhance system administration skills using Docker. M
 - The domain `.42.fr` must point to the local IP.
 - **NGINX** must be the sole entry point via port `443` using **TLSv1.2/1.3**.
 
+---
+
+## 🖥 Virtual Machine Setup
+### 🔹 Installing VirtualBox
+- [Download VirtualBox](https://www.virtualbox.org/)
+- [Download Alpine Linux](https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/) (alpine-virt-3.20.4-x86_64.iso)
+
+### 🔹 Virtual Machine Configuration
+1. Open **VirtualBox** and create a new VM named `Inception`.
+2. Set **folder location** to `goinfre` or your USB drive.
+3. Select **ISO Image** (Alpine), **Type:** Linux, **Version:** Other Linux (64-bit).
+4. Set **Base Memory** to `2048MB`, **Processors** to `1 CPU`.
+5. Set **Virtual Hard Disk size** to `30GB`.
+6. Click **Finish**.
+7. Open **Settings** → **Storage** → **Optical Drive** → Select Alpine ISO.
+8. Click **Start** and proceed with installation.
+
+### 🔹 Setting Up Alpine Linux
+1. **Login as** `root`.
+2. Run `setup-alpine` and follow the prompts:
+   - Keyboard Layout: `us`
+   - Hostname: `tvalimak.42.fr`
+   - Set up **password and timezone**.
+   - Install to disk (`sda` → `sys` → `y`).
+3. Remove the **installation disk** and reboot.
+4. Login as `root` and set up `sudo`:
+   ```sh
+   vi /etc/apk/repositories  # Uncomment the last line
+   apk update
+   apk add sudo
+   visudo  # Uncomment %sudo ALL=(ALL:ALL) ALL
+   addgroup sudo
+   adduser tvalimak sudo
+   ```
+5. **Configure SSH**:
+   ```sh
+   apk add nano openssh
+   nano /etc/ssh/sshd_config
+   ```
+   - Uncomment `Port` and set it to `4241`.
+   - Change `PermitRootLogin` to `no`.
+   - Save and exit (`CTRL+O`, `Enter`, `CTRL+X`).
+   ```sh
+   rc-service sshd restart
+   netstat -tuln | grep 4241  # Verify SSH is listening
+   ```
+6. **Set up SSH Port Forwarding in VirtualBox**:
+   - Open **Settings** → **Network** → **Advanced** → **Port Forwarding**.
+   - Add a rule: **Host Port** = `4241`, **Guest Port** = `4241`.
+   - Click OK.
+7. **Test SSH Connection**:
+   ```sh
+   ssh localhost -p 4241
+   ```
+
+---
+
 ## 🔑 Environment Variables (.env File)
 ```ini
 DOMAIN_NAME=tvalimak.42.fr
@@ -51,108 +108,6 @@ WORDPRESS_EMAIL=user666@gmail.com
 
 ---
 
-## 📄 Docker Compose Documentation
-This `docker-compose.yml` file defines and manages the services used in the Inception project. Below is a breakdown of its functionality:
-
-```yaml
-services:
-  mariadb:
-    container_name: mariadb
-    init: true
-    restart: always
-    env_file:
-      - .env
-    build: requirements/mariadb
-    volumes:
-      - mariadb:/var/lib/mysql
-    networks:
-      - inception
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      retries: 5
-
-  nginx:
-    container_name: nginx
-    init: true
-    restart: always
-    environment:
-      - DOMAIN_NAME=${DOMAIN_NAME}
-    env_file:
-      - .env
-    build: requirements/nginx
-    ports:
-      - "443:443" # HTTPS
-    volumes:
-      - wordpress:/var/www/html
-    networks:
-      - inception
-    depends_on:
-      - wordpress
-
-  wordpress:
-    container_name: wordpress
-    init: true
-    restart: always
-    env_file:
-      - .env
-    build: requirements/wordpress
-    volumes:
-      - wordpress:/var/www/html
-    networks:
-      - inception
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "test", "-f", "/var/www/html/wp-login.php"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-volumes:
-  mariadb:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ~/data/mariadb
-  wordpress:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ~/data/wordpress
-
-networks:
-  inception:
-    driver: bridge
-```
-
-### 🔍 Explanation of Docker Compose Services
-- **MariaDB:**
-  - Uses environment variables from `.env` to configure the database.
-  - Stores database files in a volume at `~/data/mariadb`.
-  - Includes a health check to verify if MySQL is responding.
-
-- **NGINX:**
-  - Acts as the reverse proxy for WordPress.
-  - Uses a self-signed SSL certificate for HTTPS communication.
-  - Exposes port `443` for secure access.
-  - Depends on the WordPress service to be ready before starting.
-
-- **WordPress:**
-  - Uses environment variables from `.env` to set up the site.
-  - Stores website files in a volume at `~/data/wordpress`.
-  - Depends on MariaDB and waits for it to be healthy before starting.
-  - Includes a health check to verify that WordPress is properly installed.
-
-### 📦 Volumes & Networks
-- **Volumes** ensure persistent data storage for MariaDB and WordPress files.
-- **The `inception` network** is a custom Docker bridge network that allows all containers to communicate securely.
-
----
-
 ## 🔥 Running the Project
 ```sh
 cd ~/Inception/srcs
@@ -161,6 +116,8 @@ make
 🚀 Your services should now be running inside Docker! 🎉
 
 ---
+
+
 
 
 
