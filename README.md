@@ -1,17 +1,14 @@
 # 🚀 Inception VM Project Documentation
 
 ## 📌 Introduction
-
 This project is designed to enhance system administration skills using Docker. Multiple Docker images will be virtualized within a VM, ensuring structured deployment, security, and modularity.
 
 ## 📜 Guidelines
-
 - The project must be completed in a Virtual Machine (VM).
 - All configuration files should be placed in `srcs/`.
 - A `Makefile` must set up the application via `docker-compose.yml`.
 
 ## 🔧 Required Services
-
 - **NGINX** (TLSv1.2/1.3 only, acts as the reverse proxy).
 - **WordPress + PHP-FPM** (configured without NGINX, connects to MariaDB).
 - **MariaDB** (Database for WordPress, separate from NGINX).
@@ -20,7 +17,7 @@ This project is designed to enhance system administration skills using Docker. M
 
 ## ⚠️ Constraints
 
-![image](https://github.com/user-attachments/assets/06ff3aa7-e275-4d1c-be1f-fbece1241c7b)
+![image](https://github.com/user-attachments/assets/f53f70c6-0aa4-4587-8d40-b6e8843629bc)
 
 - Containers must auto-restart on failure.
 - `network: host`, `--link`, and `links:` cannot be used.
@@ -31,7 +28,6 @@ This project is designed to enhance system administration skills using Docker. M
 - **NGINX** must be the sole entry point via port `443` using **TLSv1.2/1.3**.
 
 ## 🔑 Environment Variables (.env File)
-
 ```ini
 DOMAIN_NAME=tvalimak.42.fr
 
@@ -58,14 +54,11 @@ WORDPRESS_EMAIL=user666@gmail.com
 # 🏗 Step-by-Step Instructions
 
 ## 🖥 Virtual Machine Setup
-
 ### 🔹 Installing VirtualBox
-
 - [Download VirtualBox](https://www.virtualbox.org/)
-- [Download Alpine Linux](https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/) (alpine-virt-3.20.5-x86\_64.iso)
+- [Download Alpine Linux](https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/) (alpine-virt-3.20.5-x86_64.iso)
 
 ### 🔹 Virtual Machine Configuration
-
 1. Open **VirtualBox** and create a new VM named `Inception`.
 2. Set **folder location** to `goinfre` or your USB drive.
 3. Select **ISO Image** (Alpine), **Type:** Linux, **Version:** Other Linux (64-bit).
@@ -76,7 +69,6 @@ WORDPRESS_EMAIL=user666@gmail.com
 8. Click **Start** and proceed with installation.
 
 ### 🔹 Setting Up Alpine Linux
-
 1. **Login as** `root`.
 2. Run `setup-alpine` and follow the prompts:
    - Keyboard Layout: `us`
@@ -97,22 +89,18 @@ WORDPRESS_EMAIL=user666@gmail.com
 ---
 
 ## 🔐 SSH Installation & Configuration
-
 ```sh
 apk update
 apk add nano openssh
 nano /etc/ssh/sshd_config
 ```
-
 - Uncomment `Port` and set it to `4241`.
 - Change `PermitRootLogin` to `no`.
 - Save and exit (`CTRL+O`, `Enter`, `CTRL+X`).
-
 ```sh
 rc-service sshd restart
 netstat -tuln | grep 4241  # Verify SSH is listening
 ```
-
 - Open **VirtualBox** → **Settings** → **Network** → **Advanced** → **Port Forwarding**
 - Add a rule: **Host Port** = `4241`, **Guest Port** = `4241`.
 - Test connection:
@@ -123,7 +111,6 @@ netstat -tuln | grep 4241  # Verify SSH is listening
 ---
 
 ## 🐳 Docker Installation
-
 ```sh
 apk update && apk upgrade
 apk add docker docker-compose
@@ -136,34 +123,29 @@ apk add docker-cli-compose
 
 ---
 
-📂 Project Setup
+## 📂 Project Setup
+### 📌 Directory Structure
+Since the `Makefile` automates the creation of directories, manual folder creation is **not** required. The directories will be generated when running the project.
 
-📌 Directory Structure
-
-Since the Makefile automates the creation of directories, manual folder creation is not required. The directories will be generated when running the project.
-
-Makefile ensures:
-
-$(HOME)/data/mariadb and $(HOME)/data/wordpress directories exist before running Docker Compose.
+**Makefile ensures:**
+- `$(HOME)/data/mariadb` and `$(HOME)/data/wordpress` directories exist before running Docker Compose.
 
 ---
 
 ## 🔥 Running the Project
-
 ```sh
 cd ~/Inception/srcs
 make
 ```
-
 🚀 Your services should now be running inside Docker! 🎉
 
 ---
 
 📢 **More Features Coming Soon!**
 
--
-
 🔗 **Stay Connected!** 💬 Have questions? [Open an Issue](https://github.com/tvalimak/inception/issues) or connect via [GitHub Discussions](https://github.com/tvalimak/inception/discussions)!
+
+
 
 
 
