@@ -16,9 +16,6 @@ This project is designed to enhance system administration skills using Docker. M
 - **Docker Network** to securely link services.
 
 ## ⚠️ Constraints
-
-![image](https://github.com/user-attachments/assets/f53f70c6-0aa4-4587-8d40-b6e8843629bc)
-
 - Containers must auto-restart on failure.
 - `network: host`, `--link`, and `links:` cannot be used.
 - Avoid infinite loops (`tail -f`, `bash`, `sleep infinity`).
@@ -53,63 +50,6 @@ WORDPRESS_EMAIL=user666@gmail.com
 
 # 🏗 Step-by-Step Instructions
 
-## 🖥 Virtual Machine Setup
-### 🔹 Installing VirtualBox
-- [Download VirtualBox](https://www.virtualbox.org/)
-- [Download Alpine Linux](https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/) (alpine-virt-3.20.5-x86_64.iso)
-
-### 🔹 Virtual Machine Configuration
-1. Open **VirtualBox** and create a new VM named `Inception`.
-2. Set **folder location** to `goinfre` or your USB drive.
-3. Select **ISO Image** (Alpine), **Type:** Linux, **Version:** Other Linux (64-bit).
-4. Set **Base Memory** to `2048MB`, **Processors** to `1 CPU`.
-5. Set **Virtual Hard Disk size** to `30GB`.
-6. Click **Finish**.
-7. Open **Settings** → **Storage** → **Optical Drive** → Select Alpine ISO.
-8. Click **Start** and proceed with installation.
-
-### 🔹 Setting Up Alpine Linux
-1. **Login as** `root`.
-2. Run `setup-alpine` and follow the prompts:
-   - Keyboard Layout: `us`
-   - Hostname: `tvalimak.42.fr`
-   - Set up **password and timezone**.
-   - Install to disk (`sda` → `sys` → `y`).
-3. Remove the **installation disk** and reboot.
-4. Login as `root` and set up `sudo`:
-   ```sh
-   vi /etc/apk/repositories  # Uncomment the last line
-   apk update
-   apk add sudo
-   visudo  # Uncomment %sudo ALL=(ALL:ALL) ALL
-   addgroup sudo
-   adduser tvalimak sudo
-   ```
-
----
-
-## 🔐 SSH Installation & Configuration
-```sh
-apk update
-apk add nano openssh
-nano /etc/ssh/sshd_config
-```
-- Uncomment `Port` and set it to `4241`.
-- Change `PermitRootLogin` to `no`.
-- Save and exit (`CTRL+O`, `Enter`, `CTRL+X`).
-```sh
-rc-service sshd restart
-netstat -tuln | grep 4241  # Verify SSH is listening
-```
-- Open **VirtualBox** → **Settings** → **Network** → **Advanced** → **Port Forwarding**
-- Add a rule: **Host Port** = `4241`, **Guest Port** = `4241`.
-- Test connection:
-  ```sh
-  ssh localhost -p 4241
-  ```
-
----
-
 ## 🐳 Docker Installation
 ```sh
 apk update && apk upgrade
@@ -125,10 +65,50 @@ apk add docker-cli-compose
 
 ## 📂 Project Setup
 ### 📌 Directory Structure
-Since the `Makefile` automates the creation of directories, manual folder creation is **not** required. The directories will be generated when running the project.
+To ensure a proper project structure, execute the following commands inside your VM:
 
-**Makefile ensures:**
-- `$(HOME)/data/mariadb` and `$(HOME)/data/wordpress` directories exist before running Docker Compose.
+```sh
+# Create the main project directory
+mkdir -p ~/Inception/srcs
+
+# Navigate into the project directory
+cd ~/Inception/srcs
+
+# Create essential files and folders
+mkdir -p requirements/{mariadb,nginx,wordpress,tools}
+touch docker-compose.yml .env
+
+# Inside requirements, create necessary subdirectories
+mkdir -p requirements/mariadb/{conf,tools}
+mkdir -p requirements/nginx/{conf,tools}
+mkdir -p requirements/wordpress/{conf,tools}
+
+# Create necessary Dockerfiles and .dockerignore files
+touch requirements/mariadb/{Dockerfile,.dockerignore}
+touch requirements/nginx/{Dockerfile,.dockerignore}
+touch requirements/wordpress/{Dockerfile,.dockerignore}
+```
+
+After creating the directories, verify the structure with:
+```sh
+tree ~/Inception
+```
+
+### 🔑 Setting Up Permissions
+Run the following commands to ensure proper file permissions:
+```sh
+# Change ownership to your user
+tmenkovi=tvalimak  # Adjust to match your username
+chown -R $tmenkovi:$tmenkovi ~/Inception
+
+# Set permissions for directories and files
+chmod -R 775 ~/Inception/srcs
+chmod 664 ~/Inception/srcs/docker-compose.yml
+chmod 664 ~/Inception/srcs/.env
+chmod -R 775 ~/Inception/srcs/requirements
+chmod -R 664 ~/Inception/srcs/requirements/*/.dockerignore
+chmod -R 664 ~/Inception/srcs/requirements/*/Dockerfile
+```
 
 ---
 
@@ -143,7 +123,7 @@ make
 
 📢 **More Features Coming Soon!**
 
-🔗 **Stay Connected!** 💬 Have questions? [Open an Issue](https://github.com/tvalimak/inception/issues) or connect via [GitHub Discussions](https://github.com/tvalimak/inception/discussions)!
+
 
 
 
