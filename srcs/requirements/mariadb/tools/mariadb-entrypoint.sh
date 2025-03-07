@@ -22,8 +22,10 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 DROP DATABASE IF EXISTS $MYSQL_DATABASE;
 CREATE DATABASE $MYSQL_DATABASE;
 ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
+
 CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
-GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';
+GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%' WITH GRANT OPTION;
+
 FLUSH PRIVILEGES;
 EOF
 
@@ -31,6 +33,16 @@ EOF
 else
   log "✅ Database Already Initialized — Skipping Setup"
 fi
+
+# Ensure users exist at every startup
+log "🔍 Ensuring users exist..."
+mysqld --user=mysql --bootstrap <<EOF
+CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;
+EOF
+log "✅ Users ensured."
 
 log "🚀 Starting MariaDB service..."
 exec mysqld --user=mysql --console
