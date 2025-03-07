@@ -17,7 +17,8 @@ RUN apk update && apk add --no-cache \
     mariadb-client \
     wget \
     bash \
-    ca-certificates
+    ca-certificates \
+    curl
 
 # Create WordPress directory and install WP CLI
 RUN mkdir -p /var/www/html && \
@@ -40,6 +41,9 @@ RUN echo "memory_limit = 512M" > /etc/php83/conf.d/99-custom.ini && \
     echo "post_max_size = 512M" >> /etc/php83/conf.d/99-custom.ini && \
     echo "max_execution_time = 300" >> /etc/php83/conf.d/99-custom.ini && \
     echo "max_input_time = 300" >> /etc/php83/conf.d/99-custom.ini
+
+# Ensure correct permissions on the working directory
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 
 # Expose PHP-FPM port
 EXPOSE 9000
