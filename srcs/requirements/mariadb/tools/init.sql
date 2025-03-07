@@ -1,16 +1,13 @@
 -- Drop the database if it exists, then create a new one
--- Placeholders are replaced by the entrypoint script
-DROP DATABASE IF EXISTS `database_name`;
-CREATE DATABASE `database_name`;
+DROP DATABASE IF EXISTS `${MYSQL_DATABASE}`;
+CREATE DATABASE `${MYSQL_DATABASE}`;
 
--- Manually set the password to prevent login without password
--- Placeholders are replaced by the entrypoint script
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'database_pass';
+-- Manually set the password for the root user
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 
 -- Create the user if it doesn't already exist and set permissions
--- Placeholders are replaced by the entrypoint script
-CREATE USER IF NOT EXISTS 'database_user'@'%' IDENTIFIED BY 'database_pass';
-GRANT ALL PRIVILEGES ON `database_name`.* TO 'database_user'@'%';
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON `${MYSQL_DATABASE}`.* TO '${MYSQL_USER}'@'%';
 
--- Reload tables and apply changes
+-- Apply changes
 FLUSH PRIVILEGES;
