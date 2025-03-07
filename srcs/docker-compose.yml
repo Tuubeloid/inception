@@ -14,7 +14,7 @@ services:
     volumes:
       - mariadb:/var/lib/mysql
     networks:
-      - docker-network
+      - inception
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -34,7 +34,7 @@ services:
     volumes:
       - wordpress:/var/www/html
     networks:
-      - docker-network
+      - inception
     depends_on:
       - wordpress
 
@@ -58,7 +58,7 @@ services:
     volumes:
       - wordpress:/var/www/html
     networks:
-      - docker-network
+      - inception
     depends_on:
       mariadb:
         condition: service_healthy
@@ -83,6 +83,5 @@ volumes:
       device: ${HOME}/data/wordpress
 
 networks:
-  docker-network:
-    name: docker-network
+  inception:
     driver: bridge
