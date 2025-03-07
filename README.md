@@ -136,30 +136,15 @@ apk add docker-cli-compose
 
 ---
 
-## 📂 Project Setup
+📂 Project Setup
 
-### 📌 Directory Structure
+📌 Directory Structure
 
-```sh
-mkdir -p ~/Inception/srcs/requirements/{mariadb,nginx,wordpress}/conf
-mkdir -p ~/Inception/srcs/requirements/{mariadb,nginx}/tools
-touch ~/Inception/srcs/docker-compose.yml ~/Inception/srcs/.env
-```
+Since the Makefile automates the creation of directories, manual folder creation is not required. The directories will be generated when running the project.
 
-**Verify the structure:**
+Makefile ensures:
 
-```sh
-tree ~/Inception
-```
-
-### 🔑 Setting Up File Permissions
-
-```sh
-chown -R tvalimak:tvalimak ~/Inception
-chmod -R 775 ~/Inception/srcs
-chmod 664 ~/Inception/srcs/docker-compose.yml
-chmod 664 ~/Inception/srcs/.env
-```
+$(HOME)/data/mariadb and $(HOME)/data/wordpress directories exist before running Docker Compose.
 
 ---
 
