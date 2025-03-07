@@ -7,17 +7,18 @@ echo "🔍 Checking database connection..."
 MAX_TRIES=30
 TRIES=0
 
-while ! mysql -h"$WORDPRESS_DB_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "SELECT 1;" > /dev/null 2>&1; do
-    TRIES=$((TRIES + 1))
-    echo "Waiting for MariaDB ($TRIES/$MAX_TRIES)..."
+while ! mysqladmin ping -h mariadb --silent; do
+	TRIES=$((TRIES + 1))
+	echo "Waiting for MariaDB ($TRIES/$MAX_TRIES)..."
 
-    if [ "$TRIES" -ge "$MAX_TRIES" ]; then
-        echo "❌ MariaDB is not responding. Exiting."
-        exit 1
-    fi
+	if [ "$TRIES" -ge "$MAX_TRIES" ]; then
+		echo "MariaDB is not responding. Exiting."
+		exit 1
+	fi
 
-    sleep 3
+	sleep 3
 done
+echo "MariaDB is ready! ✅"
 
 echo "✅ MariaDB is ready! Waiting for DB stabilization..."
 sleep 3  # Wait to ensure database is fully initialized
