@@ -41,7 +41,7 @@ if [ ! -f wp-config.php ] || [ ! -d wp-admin ]; then
         --dbname=$MYSQL_DATABASE \
         --dbuser=$MYSQL_USER \
         --dbpass=$MYSQL_PASSWORD \
-        --dbhost=mariadb \
+        --dbhost=$WORDPRESS_DB_HOST \
         --allow-root
 
     wp core install \
