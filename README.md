@@ -17,7 +17,7 @@ This project is designed to enhance system administration skills using Docker. M
 
 ## ⚠️ Constraints
 
-![image](https://github.com/user-attachments/assets/9f46df6c-969c-45f8-a8d9-3c3f7aef9400)
+![image](https://github.com/user-attachments/assets/a9b8682d-a87d-461f-b4d1-070b6d709526)
 
 - Containers must auto-restart on failure.
 - `network: host`, `--link`, and `links:` cannot be used.
@@ -51,125 +51,105 @@ WORDPRESS_EMAIL=user666@gmail.com
 
 ---
 
-# 🏗 Step-by-Step Instructions
+## 📄 Docker Compose Documentation
+This `docker-compose.yml` file defines and manages the services used in the Inception project. Below is a breakdown of its functionality:
 
-## 🐳 Docker Installation
-```sh
-apk update && apk upgrade
-apk add docker docker-compose
-rc-update add docker boot
-service docker start
-service docker status  # Ensure Docker is running
-addgroup tvalimak docker
-apk add docker-cli-compose
-```
+```yaml
+services:
+  mariadb:
+    container_name: mariadb
+    init: true
+    restart: always
+    env_file:
+      - .env
+    build: requirements/mariadb
+    volumes:
+      - mariadb:/var/lib/mysql
+    networks:
+      - inception
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
 
----
+  nginx:
+    container_name: nginx
+    init: true
+    restart: always
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+    env_file:
+      - .env
+    build: requirements/nginx
+    ports:
+      - "443:443" # HTTPS
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - inception
+    depends_on:
+      - wordpress
 
-## 📂 Project Setup
-### 📌 Directory Structure
-To ensure a proper project structure, execute the following commands inside your VM:
-
-```sh
-# Create the main project directory
-mkdir -p ~/Inception/srcs
-
-# Navigate into the project directory
-cd ~/Inception/srcs
-
-# Create essential files and folders
-mkdir -p requirements/{mariadb,nginx,wordpress,tools}
-touch docker-compose.yml .env
-
-# Inside requirements, create necessary subdirectories
-mkdir -p requirements/mariadb/{conf,tools}
-mkdir -p requirements/nginx/{conf,tools}
-mkdir -p requirements/wordpress/{conf,tools}
-
-# Create necessary Dockerfiles and .dockerignore files
-touch requirements/mariadb/{Dockerfile,.dockerignore}
-touch requirements/nginx/{Dockerfile,.dockerignore}
-touch requirements/wordpress/{Dockerfile,.dockerignore}
-```
-
-After creating the directories, verify the structure with:
-```sh
-tree ~/Inception
-```
-
-### 🔑 Setting Up Permissions
-Run the following commands to ensure proper file permissions:
-```sh
-# Change ownership to your user
-tvalimak  # Adjust to match your username
-chown -R $tvalimak:$tvalimak ~/Inception
-
-# Set permissions for directories and files
-chmod -R 775 ~/Inception/srcs
-chmod 664 ~/Inception/srcs/docker-compose.yml
-chmod 664 ~/Inception/srcs/.env
-chmod -R 775 ~/Inception/srcs/requirements
-chmod -R 664 ~/Inception/srcs/requirements/*/.dockerignore
-chmod -R 664 ~/Inception/srcs/requirements/*/Dockerfile
-```
-
----
-
-## 📄 Makefile Documentation
-This `Makefile` automates the setup, management, and cleanup of the Inception project. Below is a breakdown of its functionality:
-
-```makefile
-COMPOSE_FILE   := srcs/docker-compose.yml
-DOCKER_COMPOSE := docker compose -f $(COMPOSE_FILE)
-
-DATADIR := $(HOME)/data
-MARIADB := $(DATADIR)/mariadb
-WORDPRESS := $(DATADIR)/wordpress
-
-all: up
-
-up: $(MARIADB) $(WORDPRESS)
-	@$(DOCKER_COMPOSE) up --build -d
-
-down:
-	@$(DOCKER_COMPOSE) down
-
-re: down up
-
-clean: down
-	sudo rm -rf $(DATADIR)
-
-fclean: clean
-	@$(DOCKER_COMPOSE) down -v --rmi all
-
-ps:
-	@$(DOCKER_COMPOSE) ps
-
-logs:
-	@$(DOCKER_COMPOSE) logs
+  wordpress:
+    container_name: wordpress
+    init: true
+    restart: always
+    env_file:
+      - .env
+    build: requirements/wordpress
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - inception
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "test", "-f", "/var/www/html/wp-login.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
-	docker volume ls
-	docker volume inspect srcs_mariadb
-	docker volume inspect srcs_wordpress
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/mariadb
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/wordpress
 
-$(MARIADB) $(WORDPRESS):
-	mkdir -p $@
-
-.PHONY: all up down re clean fclean ps logs volumes
+networks:
+  inception:
+    driver: bridge
 ```
 
-### 🔍 Explanation of Makefile Targets
-- **`all`**: Default target, runs `up` to build and start all services.
-- **`up`**: Ensures the required directories exist and starts the containers with `docker-compose up --build -d`.
-- **`down`**: Stops all running containers.
-- **`re`**: Restarts all services by running `down` followed by `up`.
-- **`clean`**: Stops all containers and removes the entire data directory.
-- **`fclean`**: Performs `clean`, removes all container volumes, and deletes all Docker images used in the project.
-- **`ps`**: Lists all running containers.
-- **`logs`**: Displays logs from all running containers.
-- **`volumes`**: Lists all Docker volumes and inspects the `srcs_mariadb` and `srcs_wordpress` volumes.
-- **`$(MARIADB) $(WORDPRESS)`**: Ensures that the required directories exist before starting services.
+### 🔍 Explanation of Docker Compose Services
+- **MariaDB:**
+  - Uses environment variables from `.env` to configure the database.
+  - Stores database files in a volume at `~/data/mariadb`.
+  - Includes a health check to verify if MySQL is responding.
+
+- **NGINX:**
+  - Acts as the reverse proxy for WordPress.
+  - Uses a self-signed SSL certificate for HTTPS communication.
+  - Exposes port `443` for secure access.
+  - Depends on the WordPress service to be ready before starting.
+
+- **WordPress:**
+  - Uses environment variables from `.env` to set up the site.
+  - Stores website files in a volume at `~/data/wordpress`.
+  - Depends on MariaDB and waits for it to be healthy before starting.
+  - Includes a health check to verify that WordPress is properly installed.
+
+### 📦 Volumes & Networks
+- **Volumes** ensure persistent data storage for MariaDB and WordPress files.
+- **The `inception` network** is a custom Docker bridge network that allows all containers to communicate securely.
 
 ---
 
@@ -183,3 +163,9 @@ make
 ---
 
 📢 **More Features Coming Soon!**
+
+🔗 **Stay Connected!** 💬 Have questions? [Open an Issue](https://github.com/tvalimak/inception/issues) or connect via [GitHub Discussions](https://github.com/tvalimak/inception/discussions)!
+
+
+
+
