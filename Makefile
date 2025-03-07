@@ -1,3 +1,5 @@
+HOME := /home/tvalimak
+
 DOCKER_COMPOSE_FILE := ./srcs/docker-compose.yml
 ENV_FILE := srcs/.env
 DATA_DIR := $(HOME)/data
