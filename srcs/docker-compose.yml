@@ -16,8 +16,9 @@ services:
     networks:
       - docker-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
+      test: ["CMD", "test", "-f", "/var/www/html/wp-login.php"]
+      interval: 30s
+      timeout: 10s
       retries: 5
 
   nginx:
