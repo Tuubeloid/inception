@@ -18,7 +18,10 @@ RUN apk update && apk add --no-cache \
     wget \
     bash \
     ca-certificates \
-    curl
+    shadow  # Adds usermod & groupmod for managing users
+
+# ✅ Ensure the www-data user and group exist
+RUN addgroup -g 1000 www-data && adduser -D -H -u 1000 -G www-data www-data
 
 # Create WordPress directory and install WP CLI
 RUN mkdir -p /var/www/html && \
@@ -42,7 +45,7 @@ RUN echo "memory_limit = 512M" > /etc/php83/conf.d/99-custom.ini && \
     echo "max_execution_time = 300" >> /etc/php83/conf.d/99-custom.ini && \
     echo "max_input_time = 300" >> /etc/php83/conf.d/99-custom.ini
 
-# Ensure correct permissions on the working directory
+# ✅ Fix permissions AFTER www-data exists
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 
 # Expose PHP-FPM port
