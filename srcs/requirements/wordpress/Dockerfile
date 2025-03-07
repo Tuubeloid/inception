@@ -21,7 +21,8 @@ RUN apk update && apk add --no-cache \
     shadow  # Adds usermod & groupmod for managing users
 
 # ✅ Ensure the www-data user and group exist
-RUN addgroup -g 1000 www-data && adduser -D -H -u 1000 -G www-data www-data
+RUN getent group www-data || addgroup -g 1000 www-data && \
+    id -u www-data &>/dev/null || adduser -D -H -u 1000 -G www-data www-data
 
 # Create WordPress directory and install WP CLI
 RUN mkdir -p /var/www/html && \
