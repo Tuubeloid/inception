@@ -84,6 +84,169 @@ This project is designed to enhance system administration skills using Docker. M
 
 ---
 
+## 🐳 Docker Installation & Setup
+### 🔹 Installing Docker
+```sh
+ssh localhost -p 4241
+sudo apk update && sudo apk upgrade
+sudo vi /etc/apk/repositories  # Uncomment first line, save & close
+sudo apk add docker docker-compose
+sudo apk add --update docker openrc
+```
+### 🔹 Starting Docker
+```sh
+sudo rc-update add docker boot
+service docker status  # Ensure it's running
+sudo service docker start  # Start if stopped
+```
+### 🔹 Add User to Docker Group
+```sh
+sudo addgroup tvalimak docker
+sudo apk add docker-cli-compose
+```
+
+---
+
+## 📄 Explanation for Makefile
+The `Makefile` automates the building, running, and management of Docker services.
+- **`up`**: Builds and starts the containers.
+- **`down`**: Stops and removes the running containers.
+- **`re`**: Restarts the services by executing `down` followed by `up`.
+- **`clean`**: Removes the entire data directory.
+- **`fclean`**: Performs `clean`, removes container volumes, and deletes all Docker images used.
+- **`ps`**: Lists the running containers.
+- **`logs`**: Displays logs from running containers.
+- **`volumes`**: Lists and inspects the Docker volumes.
+
+```makefile
+COMPOSE_FILE   := srcs/docker-compose.yml
+DOCKER_COMPOSE := docker compose -f $(COMPOSE_FILE)
+
+DATADIR := $(HOME)/data
+MARIADB := $(DATADIR)/mariadb
+WORDPRESS := $(DATADIR)/wordpress
+
+all: up
+
+up: $(MARIADB) $(WORDPRESS)
+	@$(DOCKER_COMPOSE) up --build -d
+
+down:
+	@$(DOCKER_COMPOSE) down
+
+re: down up
+
+clean: down
+	sudo rm -rf $(DATADIR)
+
+fclean: clean
+	@$(DOCKER_COMPOSE) down -v --rmi all
+
+ps:
+	@$(DOCKER_COMPOSE) ps
+
+logs:
+	@$(DOCKER_COMPOSE) logs
+
+volumes:
+	docker volume ls
+	docker volume inspect srcs_mariadb
+	docker volume inspect srcs_wordpress
+
+$(MARIADB) $(WORDPRESS):
+	mkdir -p $@
+
+.PHONY: all up down re clean fclean ps logs volumes
+```
+
+---
+
+## 📄 Explanation for docker-compose.yml
+The `docker-compose.yml` defines the services and configurations for the project.
+
+- **MariaDB**: Sets up the database service and ensures it is healthy before WordPress starts.
+- **NGINX**: Serves as the reverse proxy for WordPress over HTTPS.
+- **WordPress**: Installs and configures WordPress, waiting for MariaDB before launching.
+- **Volumes**: Stores persistent data for both MariaDB and WordPress.
+- **Network**: Ensures secure communication between the services.
+
+```yaml
+services:
+  mariadb:
+    container_name: mariadb
+    init: true
+    restart: always
+    env_file:
+      - .env
+    build: requirements/mariadb
+    volumes:
+      - mariadb:/var/lib/mysql
+    networks:
+      - inception
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+
+  nginx:
+    container_name: nginx
+    init: true
+    restart: always
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+    env_file:
+      - .env
+    build: requirements/nginx
+    ports:
+      - "443:443" # HTTPS
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - inception
+    depends_on:
+      - wordpress
+
+  wordpress:
+    container_name: wordpress
+    init: true
+    restart: always
+    env_file:
+      - .env
+    build: requirements/wordpress
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - inception
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "test", "-f", "/var/www/html/wp-login.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/mariadb
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/wordpress
+
+networks:
+  inception:
+    driver: bridge
+```
+
+---
+
 ## 🔑 Environment Variables (.env File)
 ```ini
 DOMAIN_NAME=tvalimak.42.fr
@@ -107,19 +270,6 @@ WORDPRESS_EMAIL=user666@gmail.com
 ```
 
 ---
-
-## 🔥 Running the Project
-```sh
-cd ~/Inception/srcs
-make
-```
-🚀 Your services should now be running inside Docker! 🎉
-
----
-
-
-
-
 
 
 
