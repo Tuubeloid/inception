@@ -7,7 +7,7 @@ echo "🔍 Checking database connection..."
 MAX_TRIES=30
 TRIES=0
 
-while ! mysqladmin ping -h"$WORDPRESS_DB_HOST" --silent; do
+while ! mysqladmin ping -h mariadb --silent; do
     TRIES=$((TRIES + 1))
     echo "Waiting for MariaDB ($TRIES/$MAX_TRIES)..."
 
