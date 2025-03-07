@@ -21,7 +21,7 @@ echo "✅ MariaDB is ready!"
 # Ensure the `www-data` user exists (for PHP-FPM)
 if ! id www-data >/dev/null 2>&1; then
     echo "Creating www-data user..."
-    adduser -D -H -u 82 www-data
+    adduser -D -H -u 1000 www-data
 fi
 
 # Ensure PHP-FPM config exists before modifying it
