@@ -7,7 +7,7 @@ echo "🔍 Checking database connection..."
 MAX_TRIES=30
 TRIES=0
 
-while ! mysqladmin ping -h mariadb -u"root" -p"$MYSQL_ROOT_PASSWORD" --silent; do
+while ! mysqladmin ping -h mariadb -u"root" -p"$MYSQL_ROOT_PASSWORD" --protocol=tcp >/dev/null 2>&1; do
     TRIES=$((TRIES + 1))
     echo "Waiting for MariaDB ($TRIES/$MAX_TRIES)..."
 
