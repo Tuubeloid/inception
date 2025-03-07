@@ -107,6 +107,72 @@ sudo apk add docker-cli-compose
 
 ---
 
+## 🗂 Expected Folder Structure
+
+# 📂 This project follows a structured directory organization to maintain clarity and modularity. Below is the expected folder hierarchy:
+
+```
+.
+├── Makefile
+├── srcs
+│   ├── docker-compose.yml
+│   ├── .env
+│   ├── requirements
+│   │   ├── bonus
+│   │   ├── mariadb
+│   │   │   ├── conf
+│   │   │   ├── Dockerfile
+│   │   │   ├── .dockerignore
+│   │   │   ├── tools
+│   │   ├── nginx
+│   │   │   ├── conf
+│   │   │   ├── Dockerfile
+│   │   │   ├── .dockerignore
+│   │   │   ├── tools
+│   │   ├── tools
+│   │   ├── wordpress
+```
+
+## 📌 Folder Descriptions
+
+```
+Makefile: Automates the setup and management of the project.
+
+srcs/: Contains all configuration and service-related files.
+
+docker-compose.yml: Defines the services, networks, and volumes.
+
+.env: Stores environment variables for MariaDB, WordPress, and NGINX.
+
+requirements/: Houses service-specific configurations and Dockerfiles.
+
+mariadb/: Configuration for the database service.
+
+conf/: Stores database configurations.
+
+Dockerfile: Defines how MariaDB is built.
+
+.dockerignore: Specifies ignored files during build.
+
+tools/: Scripts for database setup.
+
+nginx/: Configuration for the reverse proxy.
+
+conf/: Contains NGINX configuration files.
+
+Dockerfile: Defines how NGINX is built.
+
+.dockerignore: Specifies ignored files during build.
+
+tools/: Additional scripts for setup.
+
+wordpress/: Configuration for WordPress setup.
+
+This structured organization ensures maintainability, clarity, and separation of concerns for the project.
+```
+
+---
+
 ## 📄 Explanation for Makefile
 The `Makefile` automates the building, running, and management of Docker services.
 - **`up`**: Builds and starts the containers.
