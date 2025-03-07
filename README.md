@@ -274,5 +274,9 @@ WORDPRESS_EMAIL=user666@gmail.com
 
 ---
 
+## 💯 Recommended
+Very well made documentation to understand docker-compose projects.
+https://docs.docker.com/compose/gettingstarted/
 
+---
 
