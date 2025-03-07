@@ -101,7 +101,3 @@ echo "✅ Finished configuration!"
 # Start PHP-FPM
 echo "🚀 Starting PHP-FPM..."
 exec php-fpm83 -F
-
-# Start PHP-FPM
-echo "🚀 Starting PHP-FPM..."
-exec php-fpm83 -F
