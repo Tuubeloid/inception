@@ -4,10 +4,9 @@ set -e
 echo "🔍 Checking database connection..."
 
 # Ensure MariaDB is ready before proceeding
-MAX_TRIES=100
+MAX_TRIES=30
 TRIES=0
 
-# Use an actual SQL query to check if MariaDB is accepting connections
 while ! mysql -h"$WORDPRESS_DB_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "SELECT 1;" > /dev/null 2>&1; do
     TRIES=$((TRIES + 1))
     echo "Waiting for MariaDB ($TRIES/$MAX_TRIES)..."
@@ -20,7 +19,8 @@ while ! mysql -h"$WORDPRESS_DB_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "SEL
     sleep 3
 done
 
-echo "✅ MariaDB is ready!"
+echo "✅ MariaDB is ready! Waiting for DB stabilization..."
+sleep 3  # Wait to ensure database is fully initialized
 
 # Ensure the `www-data` user exists (for PHP-FPM)
 if ! id www-data >/dev/null 2>&1; then
@@ -36,16 +36,17 @@ if [ -f /etc/php83/php-fpm.d/www.conf ]; then
     sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php83/php-fpm.d/www.conf
 fi
 
-# WordPress Installation Check
-if [ ! -f wp-config.php ] || [ ! -d wp-admin ]; then
+# WordPress Installation Check (Now checking inside /var/www/html/)
+if [ ! -f /var/www/html/wp-config.php ] || [ ! -d /var/www/html/wp-admin ]; then
     echo "📥 Installing WordPress..."
-    wp core download --allow-root
+    wp core download --allow-root --path=/var/www/html
 
     wp config create \
         --dbname="$MYSQL_DATABASE" \
         --dbuser="$MYSQL_USER" \
         --dbpass="$MYSQL_PASSWORD" \
         --dbhost="$WORDPRESS_DB_HOST" \
+        --path=/var/www/html \
         --allow-root
 
     wp core install \
@@ -54,6 +55,7 @@ if [ ! -f wp-config.php ] || [ ! -d wp-admin ]; then
         --admin_user="$WORDPRESS_ADMIN_USER" \
         --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
         --admin_email="$WORDPRESS_ADMIN_EMAIL" \
+        --path=/var/www/html \
         --allow-root \
         --skip-email
 
@@ -63,11 +65,12 @@ else
 fi
 
 # Ensure WordPress user exists
-if ! wp user get "$WORDPRESS_USER" --allow-root > /dev/null 2>&1; then
+if ! wp user get "$WORDPRESS_USER" --path=/var/www/html --allow-root > /dev/null 2>&1; then
     echo "👤 Creating WordPress user '$WORDPRESS_USER'..."
     wp user create "$WORDPRESS_USER" "$WORDPRESS_EMAIL" \
         --user_pass="$WORDPRESS_PASSWORD" \
         --role=subscriber \
+        --path=/var/www/html \
         --allow-root
     echo "✅ WordPress user '$WORDPRESS_USER' created."
 else
@@ -76,8 +79,8 @@ fi
 
 # Optimize MySQL and WordPress configuration
 echo "⚙️ Updating wp-config.php..."
-if ! grep -q "WP_MEMORY_LIMIT" wp-config.php; then
-    cat <<EOF >> wp-config.php
+if ! grep -q "WP_MEMORY_LIMIT" /var/www/html/wp-config.php; then
+    cat <<EOF >> /var/www/html/wp-config.php
 define('FS_METHOD', 'direct');
 define('WP_ALLOW_REPAIR', true);
 define('WP_MEMORY_LIMIT', '512M');
@@ -92,6 +95,10 @@ chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html
 
 echo "✅ Finished configuration!"
+
+# Start PHP-FPM
+echo "🚀 Starting PHP-FPM..."
+exec php-fpm83 -F
 
 # Start PHP-FPM
 echo "🚀 Starting PHP-FPM..."
