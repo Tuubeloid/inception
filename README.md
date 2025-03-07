@@ -20,6 +20,8 @@ This project is designed to enhance system administration skills using Docker. M
 
 ## ⚠️ Constraints
 
+![image](https://github.com/user-attachments/assets/06ff3aa7-e275-4d1c-be1f-fbece1241c7b)
+
 - Containers must auto-restart on failure.
 - `network: host`, `--link`, and `links:` cannot be used.
 - Avoid infinite loops (`tail -f`, `bash`, `sleep infinity`).
