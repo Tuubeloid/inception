@@ -101,8 +101,8 @@ tree ~/Inception
 Run the following commands to ensure proper file permissions:
 ```sh
 # Change ownership to your user
-tmenkovi=tvalimak  # Adjust to match your username
-chown -R $tmenkovi:$tmenkovi ~/Inception
+tvalimak  # Adjust to match your username
+chown -R $tvalimak:$tvalimak ~/Inception
 
 # Set permissions for directories and files
 chmod -R 775 ~/Inception/srcs
