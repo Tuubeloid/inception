@@ -26,7 +26,7 @@ This project is designed to enhance system administration skills using Docker. M
 - `network: host`, `--link`, and `links:` cannot be used.
 - Avoid infinite loops (`tail -f`, `bash`, `sleep infinity`).
 - The WordPress admin username **must not** contain `admin` or `administrator`.
-- Volumes must be stored in `/home//data/`.
+- Volumes must be stored in `/home/data/`.
 - The domain `.42.fr` must point to the local IP.
 - **NGINX** must be the sole entry point via port `443` using **TLSv1.2/1.3**.
 
