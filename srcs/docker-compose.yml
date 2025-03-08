@@ -41,7 +41,7 @@ services:
       - .env
     build: requirements/wordpress
     volumes:
-      - wordpress:/var/www/html
+      - ${HOME}/data/wordpress:/var/www/html
     networks:
       - inception
     depends_on:
