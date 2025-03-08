@@ -7,7 +7,7 @@ services:
       - .env
     build: requirements/mariadb
     volumes:
-      - mariadb:/var/lib/mysql
+      -  ${HOME}/data/mariadb:/var/lib/mysql
     networks:
       - inception
     healthcheck:
@@ -27,7 +27,7 @@ services:
     ports:
       - "443:443" #https
     volumes:
-      - wordpress:/var/www/html
+      - ${HOME}/data/wordpress:/var/www/html
     networks:
       - inception
     depends_on:
